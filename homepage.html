@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <meta charset="utf-8">
+    <title>GeoMap</title>
     
      <!-- This stylesheet contains specific styles for displaying the map
          on this page. Replace it with your own styles as described in the
@@ -52,6 +53,11 @@
           zoom: 4,
           center: uscenter
         });  
+        var geocoder = new google.maps.Geocoder();
+
+        document.getElementById('submit').addEventListener('click', function() {
+          geocodeAddress(geocoder, map);
+        });
           var marker = new google.maps.Marker({
           position: uscenter,
           map: map
