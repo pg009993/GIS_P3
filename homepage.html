@@ -25,20 +25,38 @@
 
 <body>
     <form action="/action_page.php"> Keyword or phrase:
-        <input type="text" name="keyword" value="">
-        <br> Location:
-        <input type="text" name="location" value="">
-        <br> Radius (in Kilometers):
-        <input type="text" name="radius" value="">
-        <br>
-        <br>
-        <input type="submit" value="Submit"> </form>
-    
-    
-    <input id="address" type="textbox" value="Sydney, NSW">
-      <input id="submit" type="button" value="Geocode">
   
+    <div>
+        Location: <input id="address" type="textbox" value="Sydney, NSW">
+        <input id="submit" type="button" value="Geocode">
+    </div>
     
+    <br><br>
+    
+ <form method="GET">
+     
+     <!--Keyword search-->
+    <div>
+        Search Term: <input type="search" id="q" name="q" placeholder="Enter Search Term">
+    </div>
+     
+     <!--This accepts latitude and longitude - use this as address input instead(above this form) and then use geocode for appropriate input into the PHP function -->
+    <div>
+        Location: <input type="text" id="location" name="location" placeholder="37.42307,-122.08427">
+    </div>
+    <div>
+        Location Radius: <input type="text" id="locationRadius" name="locationRadius" placeholder="5km">
+    </div>
+        
+    <!--Max results should be 10 and not by user input- use the ID set to 10 for the parameter-->
+<!--
+  <div>
+    Max Results: <input type="number" id="maxResults" name="maxResults" min="1" max="50" step="1" value="25">
+  </div>
+-->
+
+  <input type="submit" value="Search">
+</form>
     
     <br><br>
     
