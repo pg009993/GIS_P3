@@ -93,7 +93,6 @@ if (isset($_GET['q']) && isset($_GET['maxResults'])) {
           $videoResult['recordingDetails']['location']['longitude']);
     }
 
-      
     $htmlBody .= <<<END
     <h3>Videos</h3>
     <ul>$videos</ul>
