@@ -71,6 +71,13 @@ if (isset($_GET['q']) && isset($location) && isset($locationRadius)) {
 
   // Define an object that will be used to make all API requests.
   $youtube = new Google_Service_YouTube($client);
+    
+   // echo "above try statement";
+    //echo $q . " ";
+    //echo $location . " ";
+    //echo $locationRadius . " ";
+    //echo $maxResults;
+    
 
   try {
     // Call the search.list method to retrieve results matching the specified
@@ -127,5 +134,13 @@ END;
 </head>
 <body>
   <?=$htmlBody?>
+    
+    <?php
+    var_dump($videos);
+    echo "-----------------------------------------------------------";
+    var_dump($videosResponse);
+    ?>
+    
+    
 </body>
 </html>
