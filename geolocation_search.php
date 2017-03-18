@@ -37,16 +37,28 @@ $htmlBody = <<<END
   <div>
     Location Radius: <input type="text" id="locationRadius" name="locationRadius" placeholder="5km">
   </div>
-  <div>
-    Max Results: <input type="number" id="maxResults" name="maxResults" min="1" max="50" step="1" value="25">
-  </div>
   <input type="submit" value="Search">
 </form>
 END;
 
+    $address = $_GET['location']; 
+    $address = str_replace(' ','+',$address);
+    $geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
+    
+    $output= json_decode($geocode);
+    $latitude = $output->results[0]->geometry->location->lat;
+    $longitude = $output->results[0]->geometry->location->lng;
+   
+    //variables from the form
+    $q = $_GET['q'];
+    $location = $longitude . "," . $latitude; 
+    $locationRadius = $_GET['locationRadius'];
+    $maxResults = '10';
+
+
 // This code executes if the user enters a search query in the form
 // and submits the form. Otherwise, the page displays the form above.
-if (isset($_GET['q']) && isset($_GET['maxResults'])) {
+if (isset($_GET['q']) && isset($location) && isset($locationRadius)) {
   /*
    * Set $DEVELOPER_KEY to the "API key" value from the "Access" tab of the
   * {{ Google Cloud Console }} <{{ https://cloud.google.com/console }}>
@@ -65,10 +77,10 @@ if (isset($_GET['q']) && isset($_GET['maxResults'])) {
     // query term.
     $searchResponse = $youtube->search->listSearch('id,snippet', array(
         'type' => 'video',
-        'q' => $_GET['q'],
-        'location' =>  $_GET['location'],
-        'locationRadius' =>  $_GET['locationRadius'],
-        'maxResults' => $_GET['maxResults'],
+        'q' => $q,
+        'location' =>  $location,
+        'locationRadius' =>  $locationRadius,
+        'maxResults' => $maxResults,
     ));
 
     $videoResults = array();
@@ -105,6 +117,7 @@ END;
         htmlspecialchars($e->getMessage()));
   }
 }
+
 ?>
 
 <!doctype html>
