@@ -32,7 +32,7 @@ $htmlBody = <<<END
     Search Term: <input type="search" id="q" name="q" placeholder="Enter Search Term">
   </div>
   <div>
-    Location: <input type="text" id="location" name="location" placeholder="37.42307,-122.08427">
+    Location: <input type="text" id="location" name="location" placeholder="Athens, GA">
   </div>
   <div>
     Location Radius: <input type="text" id="locationRadius" name="locationRadius" placeholder="5km">
@@ -64,6 +64,7 @@ if (isset($_GET['q'])) {
     //variables from the form
     $maxResults = '10';
     $location =  $latitude . "," . $longitude; 
+    $locationRadius = $_GET['locationRadius'];
 
   $client = new Google_Client();
   $client->setDeveloperKey($DEVELOPER_KEY);
@@ -87,7 +88,10 @@ if (isset($_GET['q'])) {
     foreach ($searchResponse['items'] as $searchResult) {
       array_push($videoResults, $searchResult['id']['videoId']);
     }
+      
+    //creating another json for video ids  
     $videoIds = join(',', $videoResults);
+    
 
     # Call the videos.list method to retrieve location details for each video.
     $videosResponse = $youtube->videos->listVideos('snippet, recordingDetails', array(
@@ -106,17 +110,26 @@ if (isset($_GET['q'])) {
   
     $gminfo = array();
     foreach ($videosResponse['items'] as $videoResult) {     
-       $a = array( 'name' => $videoResult['snippet']['title'], 'latitude' => $videoResult['recordingDetails']['location']['latitude'], 'longitude' => $videoResult['recordingDetails']['location']['longitude']);
+       $a = array( 'name' => $videoResult['snippet']['title'], 'lat' => $videoResult['recordingDetails']['location']['latitude'], 'lng' => $videoResult['recordingDetails']['location']['longitude']);
       $gminfo[] = $a;
     }
     
       
       //convert to JSON format
       $gmjson = json_encode($gminfo); 
-    
+       
+      //empty the js file, clears out previous search results
+      $empty = ''; 
+      file_put_contents('googlemaps.js', $empty);
+      
+      //write new stuff to file
+     file_put_contents('googlemaps.js', "var googlemaps = ", FILE_APPEND);
+     file_put_contents('googlemaps.js', json_encode($gminfo), FILE_APPEND);
+     file_put_contents('googlemaps.js', ";", FILE_APPEND);
+
 
     $htmlBody .= <<<END
-    <h3>Videos</h3>
+    <h3>Results</h3>
     <ul>$videos</ul>
 END;
   } catch (Google_Service_Exception $e) {
@@ -129,16 +142,66 @@ END;
 }
 ?>
 
-<!doctype html>
+
+<!DOCTYPE html>
 <html>
-<head>
-<title>YouTube Geolocation Search</title>
-</head>
-<body>
-  <?=$htmlBody?>
+  <head>
+    <style>
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+  </head>
+  <body>
+    <h3>Geolocate YouTube Videos</h3>
+    <div id="map"></div>
+      <script src="googlemaps.js"></script>
+      <script src="videoIds.js"></script>
+    <script>
+      function initMap() {
+        var uluru = {lat: 33.95,lng: -83.38333};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: uluru
+        });
+          
+          //populate map with videos , add information to the markers, play youtube videos
+          for(x in googlemaps){
+
+              
+            /*
+            TO DO: 
+            create a marker, within the marker just add 
+            https://www.youtube.com/watch?v= + VIDEO ID , which are store in $videoIds
+            done. 
+            
+            helpful link: https://developers.google.com/maps/documentation/javascript/infowindows
+            
+            
+            issue: sometime not all results are pinned to the map...? 
+            */ 
+              
+              
+              
+              
+          var pos = {lat: googlemaps[x].lat ,lng: googlemaps[x].lng};
+         //place marker on map
+          var marker = new google.maps.Marker({
+          animation: google.maps.Animation.DROP,
+          title: googlemaps[x].name, 
+          position: pos,
+          map: map
+        });
+          }  
+      }
     
-    <?php 
-    var_dump($gmjson);
-    ?>
-</body>
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpkNDWxmHvj7Nk6Fev3ZJ0XljsO6X69eY&callback=initMap">
+    </script>
+      <?=$htmlBody?>
+    
+      </body>
 </html>
+
