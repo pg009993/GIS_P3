@@ -41,6 +41,18 @@ $htmlBody = <<<END
 </form>
 END;
 
+// This code executes if the user enters a search query in the form
+// and submits the form. Otherwise, the page displays the form above.
+if (isset($_GET['q'])) {
+  /*
+   * Set $DEVELOPER_KEY to the "API key" value from the "Access" tab of the
+  * {{ Google Cloud Console }} <{{ https://cloud.google.com/console }}>
+  * Please ensure that you have enabled the YouTube Data API for your project.
+  */
+  $DEVELOPER_KEY = 'AIzaSyCpkNDWxmHvj7Nk6Fev3ZJ0XljsO6X69eY';
+    
+    
+    //convert to long and lat via google maps api
     $address = $_GET['location']; 
     $address = str_replace(' ','+',$address);
     $geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?address='.$address.'&sensor=false');
@@ -50,43 +62,23 @@ END;
     $longitude = $output->results[0]->geometry->location->lng;
    
     //variables from the form
-    $q = $_GET['q'];
-    $location = $longitude . "," . $latitude; 
-    $locationRadius = $_GET['locationRadius'];
     $maxResults = '10';
-
-
-// This code executes if the user enters a search query in the form
-// and submits the form. Otherwise, the page displays the form above.
-if (isset($_GET['q']) && isset($location) && isset($locationRadius)) {
-  /*
-   * Set $DEVELOPER_KEY to the "API key" value from the "Access" tab of the
-  * {{ Google Cloud Console }} <{{ https://cloud.google.com/console }}>
-  * Please ensure that you have enabled the YouTube Data API for your project.
-  */
-  $DEVELOPER_KEY = 'AIzaSyCpkNDWxmHvj7Nk6Fev3ZJ0XljsO6X69eY';
+    $location =  $latitude . "," . $longitude; 
 
   $client = new Google_Client();
   $client->setDeveloperKey($DEVELOPER_KEY);
 
   // Define an object that will be used to make all API requests.
   $youtube = new Google_Service_YouTube($client);
-    
-   // echo "above try statement";
-    //echo $q . " ";
-    //echo $location . " ";
-    //echo $locationRadius . " ";
-    //echo $maxResults;
-    
 
   try {
     // Call the search.list method to retrieve results matching the specified
     // query term.
     $searchResponse = $youtube->search->listSearch('id,snippet', array(
         'type' => 'video',
-        'q' => $q,
+        'q' => $_GET['q'],
         'location' =>  $location,
-        'locationRadius' =>  $locationRadius,
+        'locationRadius' =>  $_GET['locationRadius'],
         'maxResults' => $maxResults,
     ));
 
@@ -103,7 +95,6 @@ if (isset($_GET['q']) && isset($location) && isset($locationRadius)) {
     ));
 
     $videos = '';
-
     // Display the list of matching videos.
     foreach ($videosResponse['items'] as $videoResult) {
       $videos .= sprintf('<li>%s (%s,%s)</li>',
@@ -111,6 +102,18 @@ if (isset($_GET['q']) && isset($location) && isset($locationRadius)) {
           $videoResult['recordingDetails']['location']['latitude'],
           $videoResult['recordingDetails']['location']['longitude']);
     }
+      
+  
+    $gminfo = array();
+    foreach ($videosResponse['items'] as $videoResult) {     
+       $a = array( 'name' => $videoResult['snippet']['title'], 'latitude' => $videoResult['recordingDetails']['location']['latitude'], 'longitude' => $videoResult['recordingDetails']['location']['longitude']);
+      $gminfo[] = $a;
+    }
+    
+      
+      //convert to JSON format
+      $gmjson = json_encode($gminfo); 
+    
 
     $htmlBody .= <<<END
     <h3>Videos</h3>
@@ -124,7 +127,6 @@ END;
         htmlspecialchars($e->getMessage()));
   }
 }
-
 ?>
 
 <!doctype html>
@@ -135,12 +137,8 @@ END;
 <body>
   <?=$htmlBody?>
     
-    <?php
-    var_dump($videos);
-    echo "-----------------------------------------------------------";
-    var_dump($videosResponse);
+    <?php 
+    var_dump($gmjson);
     ?>
-    
-    
 </body>
 </html>
