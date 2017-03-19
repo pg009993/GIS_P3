@@ -1,5 +1,10 @@
 <?php
 
+/*references for some of the code use. We used some of the examples provided by YouTubes and Google Maps API and modified 
+*to work with our project. 
+*YouTube reference: https://developers.google.com/youtube/v3/code_samples/php
+*Google Maps API: https://developers.google.com/maps/documentation/javascript/examples/
+
 /**
  * This sample lists videos that are associated with a particular keyword and are in the radius of
  *   particular geographic coordinates by:
@@ -199,15 +204,7 @@ END;
             });
           }
       }
-      
-
   
-    
-      
-        
-        
-        
-    
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpkNDWxmHvj7Nk6Fev3ZJ0XljsO6X69eY&callback=initMap">
