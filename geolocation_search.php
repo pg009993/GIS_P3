@@ -91,8 +91,8 @@ if (isset($_GET['q'])) {
       
     //creating another json for video ids  
     $videoIds = join(',', $videoResults);
-    
-
+    //var_dump($searchResponse);
+      
     # Call the videos.list method to retrieve location details for each video.
     $videosResponse = $youtube->videos->listVideos('snippet, recordingDetails', array(
     'id' => $videoIds,
@@ -110,10 +110,10 @@ if (isset($_GET['q'])) {
   
     $gminfo = array();
     foreach ($videosResponse['items'] as $videoResult) {     
-       $a = array( 'name' => $videoResult['snippet']['title'], 'lat' => $videoResult['recordingDetails']['location']['latitude'], 'lng' => $videoResult['recordingDetails']['location']['longitude']);
-      $gminfo[] = $a;
+        $a = array( 'name' => $videoResult['snippet']['title'], 'lat' => $videoResult['recordingDetails']['location']['latitude'], 'lng' => $videoResult['recordingDetails']['location']['longitude'],'link'=> $videoResult['id']);
+        $gminfo[] = $a;
+        
     }
-    
       
       //convert to JSON format
       $gmjson = json_encode($gminfo); 
@@ -159,42 +159,55 @@ END;
       <script src="googlemaps.js"></script>
       <script src="videoIds.js"></script>
     <script>
+        
       function initMap() {
         var uluru = {lat: 33.95,lng: -83.38333};
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 4,
-          center: uluru
+          center: uluru,
         });
-          
+          var markers =[];
           //populate map with videos , add information to the markers, play youtube videos
-          for(x in googlemaps){
-
-              
+          for(x in googlemaps){          
             /*
             TO DO: 
             create a marker, within the marker just add 
-            https://www.youtube.com/watch?v= + VIDEO ID , which are store in $videoIds
-            done. 
-            
-            helpful link: https://developers.google.com/maps/documentation/javascript/infowindows
-            
+            https://www.youtube.com/watch?v= + VIDEO ID , which are store in $videoResults
+            done.            
+            helpful link: https://developers.google.com/maps/documentation/javascript/infowindows     
             
             issue: sometime not all results are pinned to the map...? 
             */ 
-              
-              
-              
-              
+                   
           var pos = {lat: googlemaps[x].lat ,lng: googlemaps[x].lng};
          //place marker on map
-          var marker = new google.maps.Marker({
+           
+            markers[x] = new google.maps.Marker({
           animation: google.maps.Animation.DROP,
           title: googlemaps[x].name, 
           position: pos,
-          map: map
+          map: map,
+          url: "https://www.youtube.com/watch?v=" + googlemaps[x].link,
+            id: x,
         });
-          }  
+        // markers[x].index = x;
+        //markers.push(marker); 
+        //console.log(googlemaps[x].link);
+                 google.maps.event.addListener(markers[x], 'click', function() {
+                    window.location.href = markers[this.id].url;
+                    deleteMarkers();
+                    
+            });
+          }
       }
+      
+
+  
+    
+      
+        
+        
+        
     
     </script>
     <script async defer
