@@ -195,7 +195,6 @@ END;
         //console.log(googlemaps[x].link);
                  google.maps.event.addListener(markers[x], 'click', function() {
                     window.location.href = markers[this.id].url;
-                    deleteMarkers();
                     
             });
           }
